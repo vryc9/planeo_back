@@ -6,11 +6,12 @@ import com.example.planeo_back.domain.models.ExpenseByTag;
 import com.example.planeo_back.domain.models.ExpensePerMount;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ExpenseRepository extends IGenericCrudRepository<ExpenseDomain> {
     List<ExpenseDomain> findExpenseByUsername(String username);
-    double sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);
+    BigDecimal sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);
     List<ExpensePerMount> getExpensePerMonthByUser(String username);
     ExpenseDomain update (ExpenseDomain expense);
     List<ExpenseByTag> getExpenseByTag(String username);

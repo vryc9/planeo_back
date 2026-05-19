@@ -75,7 +75,7 @@ public class ExpenseService implements IExpenseService {
                 balance.id(),
                 balance.username(),
                 balance.currentBalance(),
-                balance.futureBalance() + expense.amount(),
+                balance.futureBalance().add(expense.amount()),
                 balance.pendingExpense()
         );
         balanceRepository.save(updated);

@@ -2,5 +2,7 @@ package com.example.planeo_back.domain.models;
 
 import com.example.planeo_back.domain.enums.Tag;
 
-public record ExpenseByTag(Tag tag, Double total) {
+import java.math.BigDecimal;
+
+public record ExpenseByTag(Tag tag, BigDecimal total) {
 }

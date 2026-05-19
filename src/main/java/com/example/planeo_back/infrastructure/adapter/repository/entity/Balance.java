@@ -2,6 +2,8 @@ package com.example.planeo_back.infrastructure.adapter.repository.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "balance")
 public class Balance {
@@ -11,10 +13,11 @@ public class Balance {
     private Long id;
 
 
-    private Double currentBalance;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal currentBalance;
 
-    @Column(nullable = true)
-    private Double futureBalance;
+    @Column(nullable = true, precision = 10, scale = 2)
+    private BigDecimal futureBalance;
 
     @Column(nullable = false)
     private String username;
@@ -22,7 +25,7 @@ public class Balance {
     public Balance() {
     }
 
-    public Balance(Double currentBalance, Double futureBalance, String username) {
+    public Balance(BigDecimal currentBalance, BigDecimal futureBalance, String username) {
         this.currentBalance = currentBalance;
         this.futureBalance = futureBalance;
         this.username = username;
@@ -36,19 +39,19 @@ public class Balance {
         this.id = id;
     }
 
-    public double getCurrentBalance() {
+    public BigDecimal getCurrentBalance() {
         return this.currentBalance;
     }
 
-    public void setCurrentBalance(Double currentBalance) {
+    public void setCurrentBalance(BigDecimal currentBalance) {
         this.currentBalance = currentBalance;
     }
 
-    public Double getFutureBalance() {
+    public BigDecimal getFutureBalance() {
         return this.futureBalance;
     }
 
-    public void setFutureBalance(double futureBalance) {
+    public void setFutureBalance(BigDecimal futureBalance) {
         this.futureBalance = futureBalance;
     }
 

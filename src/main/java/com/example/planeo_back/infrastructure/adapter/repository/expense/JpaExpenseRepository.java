@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -16,7 +17,7 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findExpenseByUsername(String username);
 
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.username = :username AND e.status = :status")
-    float sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);
+    BigDecimal sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);
 
     @Query("""
                 SELECT new com.example.planeo_back.domain.models.ExpensePerMount(

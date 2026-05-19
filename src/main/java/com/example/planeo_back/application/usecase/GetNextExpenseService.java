@@ -12,6 +12,8 @@ import com.example.planeo_back.infrastructure.sse.SseService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @Transactional
 public class GetNextExpenseService {
@@ -44,7 +46,7 @@ public class GetNextExpenseService {
 
     private void updateFutureBalance(String username) {
         BalanceDomain balance = balanceRepository.findBalanceByUsername(username);
-        double pendingExpensesSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
+        BigDecimal pendingExpensesSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
         balanceRepository.save(balance.withFutureBalance(pendingExpensesSum));
     }
 }

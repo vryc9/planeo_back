@@ -4,6 +4,7 @@ import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.enums.Tag;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -14,7 +15,8 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double amount;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal amount;
 
     @Enumerated(EnumType.ORDINAL)
     private Tag tag;
@@ -34,7 +36,7 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(String label, Date date, Tag tag, Double amount, String username, boolean recurring) {
+    public Expense(String label, Date date, Tag tag, BigDecimal amount, String username, boolean recurring) {
         this.label = label;
         this.date = date;
         this.tag = tag;
@@ -52,11 +54,11 @@ public class Expense {
         this.id = id;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

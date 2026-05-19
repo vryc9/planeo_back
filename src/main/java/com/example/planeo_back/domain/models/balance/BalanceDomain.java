@@ -1,20 +1,24 @@
 package com.example.planeo_back.domain.models.balance;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public record BalanceDomain (
         Long id,
         String username,
-        Double currentBalance,
-        Double futureBalance,
-        Double pendingExpense
+        BigDecimal currentBalance,
+        BigDecimal futureBalance,
+        BigDecimal pendingExpense
         ){
 
-    public Double pendingExpenses(Double futureEngagements) {
-        double pending = currentBalance - futureEngagements;
-        return Math.max(0, pending);
-    }
-
-    public BalanceDomain withFutureBalance(Double pendingSum) {
-        return new BalanceDomain(id,username, currentBalance, currentBalance - pendingSum, pendingExpense);
+    public BalanceDomain withFutureBalance(BigDecimal pendingSum) {
+        return new BalanceDomain(
+                id,
+                username,
+                currentBalance,
+                currentBalance.subtract(pendingSum).setScale(2, RoundingMode.HALF_UP),
+                pendingExpense
+        );
     }
 
 }

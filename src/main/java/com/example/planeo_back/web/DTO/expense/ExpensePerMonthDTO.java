@@ -1,4 +1,6 @@
 package com.example.planeo_back.web.DTO.expense;
 
-public record ExpensePerMonthDTO(Integer month, Double amount) {
+import java.math.BigDecimal;
+
+public record ExpensePerMonthDTO(Integer month, BigDecimal amount) {
 }

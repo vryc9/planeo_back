@@ -1,4 +1,6 @@
 package com.example.planeo_back.domain.models;
 
-public record ExpensePerMount(int month, double amount) {
+import java.math.BigDecimal;
+
+public record ExpensePerMount(int month, BigDecimal amount) {
 }

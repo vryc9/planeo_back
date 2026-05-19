@@ -3,11 +3,12 @@ package com.example.planeo_back.web.DTO;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.enums.Tag;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class ExpenseDTO {
     private Long id;
-    private Double amount;
+    private BigDecimal amount;
     private Tag tag;
     private ExpenseStatus status;
     private Date date;
@@ -17,7 +18,7 @@ public class ExpenseDTO {
     public ExpenseDTO() {
     }
 
-    public ExpenseDTO(Long id, Tag tag, double amount, Date date, String label, ExpenseStatus status, boolean recurring) {
+    public ExpenseDTO(Long id, Tag tag, BigDecimal amount, Date date, String label, ExpenseStatus status, boolean recurring) {
         this.id = id;
         this.tag = tag;
         this.amount = amount;
@@ -35,11 +36,11 @@ public class ExpenseDTO {
         this.id = id;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

@@ -3,12 +3,13 @@ package com.example.planeo_back.domain.models.expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.enums.Tag;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public record ExpenseDomain(
         Long id,
         String username,
-        Double amount,
+        BigDecimal amount,
         String label,
         Tag tag,
         ExpenseStatus status,

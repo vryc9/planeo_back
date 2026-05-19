@@ -2,26 +2,27 @@ package com.example.planeo_back.domain.service;
 
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
-import com.example.planeo_back.infrastructure.adapter.repository.entity.Balance;
-import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class CalculateFutureBalance {
 
-    public static double calculFutureBalance(List<ExpenseDomain> expenses, BalanceDomain balance, Double amount) {
+    public static BigDecimal calculFutureBalance(List<ExpenseDomain> expenses, BalanceDomain balance, BigDecimal amount) {
 
         if (expenses.isEmpty()) {
-            return balance.currentBalance() - amount;
+            return balance.currentBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP);
         }
 
-        if (balance.futureBalance() == 0) {
-            Double totalExpenses = expenses.stream()
+        if (balance.futureBalance().compareTo(BigDecimal.ZERO) == 0) {
+            BigDecimal totalExpenses = expenses.stream()
                     .map(ExpenseDomain::amount)
-                    .reduce(0.0, Double::sum);
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            return balance.currentBalance() - totalExpenses;
+            return balance.currentBalance().subtract(totalExpenses).setScale(2, RoundingMode.HALF_UP);
         }
-        return balance.futureBalance() - amount;
+
+        return balance.futureBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP);
     }
 }

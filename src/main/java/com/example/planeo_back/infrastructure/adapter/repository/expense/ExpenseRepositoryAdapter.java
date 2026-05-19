@@ -9,6 +9,7 @@ import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +55,7 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     }
 
     @Override
-    public double sumByUserIdAndStatus(String username, ExpenseStatus status) {
+    public BigDecimal sumByUserIdAndStatus(String username, ExpenseStatus status) {
         return repository.sumByUserIdAndStatus(username, status);
     }
 

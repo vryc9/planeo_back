@@ -1,6 +1,8 @@
 package com.example.planeo_back.web.DTO.balance;
 
-public record BalanceDTO(Double currentBalance,
-                         Double futureBalance
+import java.math.BigDecimal;
+
+public record BalanceDTO(BigDecimal currentBalance,
+                         BigDecimal futureBalance
 ) {
 }

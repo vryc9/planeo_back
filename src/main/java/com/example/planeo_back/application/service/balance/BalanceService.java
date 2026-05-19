@@ -12,6 +12,7 @@ import com.example.planeo_back.web.DTO.BalanceResponseDTO;
 import com.example.planeo_back.web.DTO.balance.BalanceDTO;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class BalanceService implements IBalanceService {
     public BalanceResponseDTO save(BalanceDTO balanceDTO) throws IllegalAccessException {
         Guard.checkIfObjectIsNull(balanceDTO);
         String username = authService.getUsername();
-        BalanceDomain balance = new BalanceDomain(null, username, balanceDTO.currentBalance(), balanceDTO.futureBalance(), 0.0);
+        BalanceDomain balance = new BalanceDomain(null, username, balanceDTO.currentBalance(), balanceDTO.futureBalance(), BigDecimal.ZERO);
         return mapper.toDTO(repository.save(balance));
     }
 
@@ -62,7 +63,7 @@ public class BalanceService implements IBalanceService {
     @Override
     public BalanceResponseDTO getBalance(String username) {
         BalanceDomain balance = repository.findBalanceByUsername(username);
-        double pendingSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
+        BigDecimal pendingSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
         return new BalanceResponseDTO(
                 balance.id(),
                 balance.currentBalance(),
