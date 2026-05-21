@@ -2,7 +2,6 @@ package com.example.planeo_back.web.DTO;
 
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.enums.Tag;
-import com.example.tscodegen.annotation.TypeScriptExport;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
