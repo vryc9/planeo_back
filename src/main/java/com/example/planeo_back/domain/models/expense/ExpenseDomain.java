@@ -4,7 +4,7 @@ import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.enums.Tag;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 public record ExpenseDomain(
         Long id,
@@ -14,7 +14,7 @@ public record ExpenseDomain(
         Tag tag,
         ExpenseStatus status,
         Boolean recurring,
-        Date date
+        LocalDate date
 ) {
     public ExpenseDomain markAsProcessed() {
         return new ExpenseDomain(id, username, amount, label, tag,  ExpenseStatus.PROCESSED, recurring, date);
