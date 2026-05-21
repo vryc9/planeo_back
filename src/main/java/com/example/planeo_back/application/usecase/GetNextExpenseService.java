@@ -20,13 +20,11 @@ public class GetNextExpenseService {
     private final ExpenseRepository expenseRepository;
     private final BalanceRepository balanceRepository;
     private final SseService sseService;
-    private final ExpenseMapper mapper;
 
-    public GetNextExpenseService(ExpenseRepository expenseRepository, BalanceRepository balanceRepository, SseService sseService, ExpenseMapper mapper) {
+    public GetNextExpenseService(ExpenseRepository expenseRepository, BalanceRepository balanceRepository, SseService sseService) {
         this.expenseRepository = expenseRepository;
         this.balanceRepository = balanceRepository;
         this.sseService = sseService;
-        this.mapper = mapper;
     }
 
     public void processExpense(Long expenseId, String username) {

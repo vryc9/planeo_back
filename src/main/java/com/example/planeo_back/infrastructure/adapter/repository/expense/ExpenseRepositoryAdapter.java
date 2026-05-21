@@ -7,6 +7,7 @@ import com.example.planeo_back.domain.models.ExpenseByTag;
 import com.example.planeo_back.domain.models.ExpensePerMount;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
+import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;

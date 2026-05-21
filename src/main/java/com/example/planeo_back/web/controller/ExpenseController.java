@@ -3,6 +3,7 @@ package com.example.planeo_back.web.controller;
 import com.example.planeo_back.application.service.expense.ExpenseService;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseByTagDTO;
+import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
 import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseDTO> create(@RequestBody ExpenseDTO expenseDTO) throws SchedulerException, IllegalAccessException {
+    public ResponseEntity<ExpenseDTO> create(@RequestBody ExpenseCreateRequestDTO expenseDTO) throws SchedulerException, IllegalAccessException {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(expenseDTO));
     }
 
