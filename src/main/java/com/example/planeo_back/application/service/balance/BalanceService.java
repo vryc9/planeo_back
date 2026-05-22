@@ -7,7 +7,6 @@ import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.domain.service.Guard;
 import com.example.planeo_back.infrastructure.mapper.BalanceMapper;
-import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import com.example.planeo_back.web.DTO.BalanceResponseDTO;
 import com.example.planeo_back.web.DTO.balance.BalanceDTO;
 import org.springframework.stereotype.Service;
@@ -18,35 +17,30 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
-public class BalanceService implements IBalanceService {
+public class BalanceService {
 
     private final BalanceRepository repository;
     private final BalanceMapper mapper;
     private final ExpenseRepository expenseRepository;
-    private final ExpenseMapper expenseMapper;
     private final AuthService authService;
 
-    public BalanceService(BalanceRepository balanceRepository, BalanceMapper balanceMapper, ExpenseRepository expenseRepository, ExpenseMapper IExpenseMapper, AuthService authService) {
+    public BalanceService(BalanceRepository balanceRepository, BalanceMapper balanceMapper, ExpenseRepository expenseRepository, AuthService authService) {
         this.repository = balanceRepository;
         this.mapper = balanceMapper;
         this.expenseRepository = expenseRepository;
-        this.expenseMapper = IExpenseMapper;
         this.authService  = authService;
     }
 
-    @Override
     public BalanceResponseDTO findById(Long id) {
         return repository.findById(id)
                 .map(mapper::toDTO)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
-    @Override
     public List<BalanceResponseDTO> findAll() {
         return repository.findAll().stream().map(mapper::toDTO).collect(Collectors.toList());
     }
 
-    @Override
     public BalanceResponseDTO save(BalanceDTO balanceDTO) throws IllegalAccessException {
         Guard.checkIfObjectIsNull(balanceDTO);
         String username = authService.getUsername();
@@ -54,13 +48,11 @@ public class BalanceService implements IBalanceService {
         return mapper.toDTO(repository.save(balance));
     }
 
-    @Override
     public void delete(BalanceDTO balanceDTO) {
         BalanceDomain balance = mapper.fromDtoToDomain(balanceDTO);
         repository.delete(balance);
     }
 
-    @Override
     public BalanceResponseDTO getBalance(String username) {
         BalanceDomain balance = repository.findBalanceByUsername(username);
         BigDecimal pendingSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
@@ -72,13 +64,15 @@ public class BalanceService implements IBalanceService {
         );
     }
 
-    @Override
     public boolean balanceExistForUser() {
         return repository.balanceExistForUser(authService.getUsername());
     }
 
-    @Override
-    public BalanceResponseDTO update() {
-        return null;
+    public BalanceResponseDTO update(BigDecimal newAmount) {
+        String username = authService.getUsername();
+        BigDecimal pendingSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
+        BalanceDomain balance = repository.findBalanceByUsername(username);
+        BalanceDomain updated = repository.update(balance.withDeposit(newAmount, pendingSum));
+        return BalanceResponseDTO.from(updated);
     }
 }

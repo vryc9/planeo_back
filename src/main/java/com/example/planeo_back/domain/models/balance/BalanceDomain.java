@@ -21,4 +21,14 @@ public record BalanceDomain (
         );
     }
 
+    public BalanceDomain withDeposit(BigDecimal amount, BigDecimal updatedPendingSum) {
+        return new BalanceDomain(
+                id,
+                username,
+                currentBalance.add(amount),
+                currentBalance.add(amount).subtract(updatedPendingSum),
+                updatedPendingSum
+        );
+    }
+
 }

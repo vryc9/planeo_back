@@ -7,4 +7,5 @@ public interface BalanceRepository extends IGenericCrudRepository<BalanceDomain>
     BalanceDomain findBalanceByUsername(String username);
     void decreaseCurrentBalance(String username, BigDecimal amount);
     boolean balanceExistForUser(String username);
+    BalanceDomain update(BalanceDomain domain);
 }

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/balance")
 public class BalanceController {
@@ -39,6 +41,11 @@ public class BalanceController {
     @GetMapping("/exist")
     public ResponseEntity<Boolean> balanceExistForUser() {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.balanceExistForUser());
+    }
+
+    @PutMapping
+    public ResponseEntity<BalanceResponseDTO> update(@RequestBody BigDecimal amount) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.update(amount));
     }
 
     @DeleteMapping

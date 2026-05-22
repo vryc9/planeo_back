@@ -56,4 +56,16 @@ public class BalanceRepositoryAdapter implements BalanceRepository {
     public void decreaseCurrentBalance(String username, BigDecimal amount) {
         repository.decreaseCurrentBalance(username, amount);
     }
+
+    @Override
+    public BalanceDomain update(BalanceDomain domain) {
+        BalanceDomain saved = mapper.fromEntityToDomain(repository.save(mapper.toEntity(domain)));
+        return new BalanceDomain(
+                saved.id(),
+                saved.username(),
+                saved.currentBalance(),
+                saved.futureBalance(),
+                domain.pendingExpense()
+        );
+    }
 }
