@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
-    List<Expense> findExpenseByUsername(String username);
+    List<Expense> findExpenseByUsernameOrderByDateDesc(String username);
 
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.username = :username AND e.status = :status")
     BigDecimal sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);

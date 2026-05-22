@@ -52,7 +52,7 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
 
     @Override
     public List<ExpenseDomain> findExpenseByUsername(String username) {
-        return repository.findExpenseByUsername(username).stream().map(mapper::fromEntityToDomain).toList();
+        return repository.findExpenseByUsernameOrderByDateDesc(username).stream().map(mapper::fromEntityToDomain).toList();
     }
 
     @Override
