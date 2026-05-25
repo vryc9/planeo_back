@@ -62,7 +62,7 @@ public class ExpenseService{
 
         balanceRepository.save(balanceWithFutureBalance);
         ExpenseDomain savedExpense = repository.save(expenseDomain);
-        //scheduler.scheduleJob(savedExpense, authService.getUsername());
+        scheduler.scheduleJob(savedExpense, authService.getUsername());
         return mapper.fromDomainToDTO(savedExpense);
     }
 

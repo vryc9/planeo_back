@@ -3,6 +3,8 @@ package com.example.planeo_back.infrastructure.scheduler;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.infrastructure.job.DeductExpenseAmountJobs;
 import org.quartz.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,6 +18,8 @@ public class SchedulerService {
 
     private final Scheduler scheduler;
     private final QuartzJobContextFactory quartzJobContextFactory;
+    private static final Logger log = LoggerFactory.getLogger(SchedulerService.class);
+
 
     public SchedulerService(Scheduler scheduler, QuartzJobContextFactory quartzJobContextFactory) {
         this.scheduler = scheduler;
@@ -23,6 +27,7 @@ public class SchedulerService {
     }
 
     public void scheduleJob(ExpenseDomain expense, String username) throws SchedulerException {
+        log.info("Entrée dans la méthode du scheduler");
         JobDataMap dataMap = quartzJobContextFactory.createJobDataMapWithUserContextAndExpenseId(
                 expense.id(), username);
 

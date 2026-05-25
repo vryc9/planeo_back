@@ -1,15 +1,15 @@
 package com.example.planeo_back.application.usecase;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
-import com.example.planeo_back.infrastructure.adapter.repository.entity.Balance;
-import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
-import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
+import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.infrastructure.sse.EventName;
 import com.example.planeo_back.infrastructure.sse.SseService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,6 +20,8 @@ public class GetNextExpenseService {
     private final ExpenseRepository expenseRepository;
     private final BalanceRepository balanceRepository;
     private final SseService sseService;
+    private static final Logger log = LoggerFactory.getLogger(GetNextExpenseService.class);
+
 
     public GetNextExpenseService(ExpenseRepository expenseRepository, BalanceRepository balanceRepository, SseService sseService) {
         this.expenseRepository = expenseRepository;
@@ -28,6 +30,7 @@ public class GetNextExpenseService {
     }
 
     public void processExpense(Long expenseId, String username) {
+        log.info("Entrée dans la méthode processExpense");
         ExpenseDomain expense = expenseRepository.findById(expenseId).orElseThrow();
 
         if (expense.isProcessed()) return;
@@ -40,6 +43,7 @@ public class GetNextExpenseService {
 
         sseService.send(username, EventName.UPDATED_EXPENSE,
                 "Modification de l'expense: " + expense.label());
+        log.info("Sortie de la méthode proccessExpense");
     }
 
     private void updateFutureBalance(String username) {
