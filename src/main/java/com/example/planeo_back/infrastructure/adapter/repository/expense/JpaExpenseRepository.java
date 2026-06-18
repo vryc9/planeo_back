@@ -1,8 +1,9 @@
 package com.example.planeo_back.infrastructure.adapter.repository.expense;
 
+import com.example.planeo_back.domain.models.expense.ExpensesByTagDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.models.ExpenseByTag;
+import com.example.planeo_back.domain.models.ExpenseAmountByTagDomain;
 import com.example.planeo_back.domain.models.ExpensePerMount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +32,7 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
     List<ExpensePerMount> getExpensePerMountByUser(String username);
 
     @Query("""
-        SELECT new com.example.planeo_back.domain.models.ExpenseByTag(
+        SELECT new com.example.planeo_back.domain.models.ExpenseAmountByTagDomain(
             e.tag,
             SUM(e.amount)
         )
@@ -42,5 +43,16 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
         GROUP BY e.tag
         ORDER BY SUM(e.amount) DESC
         """)
-    List<ExpenseByTag> findTotalAmountByTagForCurrentMonth(@Param("username") String username);
+    List<ExpenseAmountByTagDomain> findTotalAmountByTagForCurrentMonth(@Param("username") String username);
+
+
+    @Query("""
+            SELECT e
+            FROM Expense e
+            WHERE e.username = :username
+              AND YEAR(e.date) = YEAR(CURRENT_DATE)
+              AND MONTH(e.date) = MONTH(CURRENT_DATE)
+            ORDER BY e.date DESC
+        """)
+    List<Expense> findExpenseByUsernameForCurrentMonthOrderByDateDesc(@Param("username") String username);
 }

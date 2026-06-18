@@ -2,9 +2,10 @@ package com.example.planeo_back.web.controller;
 
 import com.example.planeo_back.application.service.expense.ExpenseService;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseByTagDTO;
+import com.example.planeo_back.web.DTO.expense.ExpenseAmountByTagDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
+import com.example.planeo_back.web.DTO.expense.ExpensesByTagsDTO;
 import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +22,9 @@ public class ExpenseController {
         this.service = service;
     }
 
-    @GetMapping("/tags")
-    public ResponseEntity<List<ExpenseByTagDTO>> expensesByTags() {
-        return ResponseEntity.status(HttpStatus.OK).body(service.getExpenseByTags());
+    @GetMapping("/amount")
+    public ResponseEntity<List<ExpenseAmountByTagDTO>> expensesAmountByTags() {
+        return ResponseEntity.status(HttpStatus.OK).body(service.getExpenseAmountByTags());
     }
 
     @GetMapping("/month")
@@ -39,6 +40,11 @@ public class ExpenseController {
     @GetMapping
     public ResponseEntity<List<ExpenseDTO>> getAll() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+    @GetMapping("/tags")
+    public ResponseEntity<List<ExpensesByTagsDTO>> getExpensesByTags() {
+        return ResponseEntity.status(HttpStatus.OK).body(service.getExpensesByTags());
     }
 
     @PostMapping

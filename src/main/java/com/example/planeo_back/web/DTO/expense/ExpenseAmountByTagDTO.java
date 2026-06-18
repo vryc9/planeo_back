@@ -4,5 +4,5 @@ import com.example.planeo_back.domain.enums.Tag;
 
 import java.math.BigDecimal;
 
-public record ExpenseByTagDTO(Tag tag, BigDecimal total) {
+public record ExpenseAmountByTagDTO(Tag tag, BigDecimal total) {
 }

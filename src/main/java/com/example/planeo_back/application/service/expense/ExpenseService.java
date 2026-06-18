@@ -1,6 +1,5 @@
 package com.example.planeo_back.application.service.expense;
 import com.example.planeo_back.application.service.security.AuthService;
-import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.ports.BalanceRepository;
@@ -10,9 +9,10 @@ import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.domain.service.CalculateFutureBalance;
 import com.example.planeo_back.infrastructure.mapper.BalanceMapper;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseByTagDTO;
+import com.example.planeo_back.web.DTO.expense.ExpenseAmountByTagDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
+import com.example.planeo_back.web.DTO.expense.ExpensesByTagsDTO;
 import jakarta.transaction.Transactional;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class ExpenseService{
     }
 
     public List<ExpenseDTO> findAll() {
-        return repository.findExpenseByUsername(authService.getUsername())
+        return repository.findExpenseForCurrentMonth(authService.getUsername())
                 .stream()
                 .map(mapper::fromDomainToDTO)
                 .toList();
@@ -51,7 +51,6 @@ public class ExpenseService{
     @Transactional
     public ExpenseDTO save(ExpenseCreateRequestDTO dto) throws SchedulerException {
         ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), dto.tag(),dto.status(), dto.recurring(), dto.date());
-
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
         BalanceDomain balanceWithFutureBalance = new BalanceDomain(
                 balance.id(),
@@ -69,7 +68,6 @@ public class ExpenseService{
     public void delete(ExpenseDTO expenseDTO) {
         String username = authService.getUsername();
         ExpenseDomain expense = mapper.fromDtoToDomain(expenseDTO);
-
         BalanceDomain balance = balanceRepository.findBalanceByUsername(username);
         BalanceDomain updated = new BalanceDomain(
                 balance.id(),
@@ -93,7 +91,11 @@ public class ExpenseService{
         return mapper.transformExpensePerMonthDTO(repository.getExpensePerMonthByUser(authService.getUsername()));
     }
 
-    public List<ExpenseByTagDTO> getExpenseByTags() {
-        return mapper.transformExpenseByTags(repository.getExpenseByTag(authService.getUsername()));
+    public List<ExpenseAmountByTagDTO> getExpenseAmountByTags() {
+        return mapper.transformExpenseAmountByTags(repository.getExpenseAmountByTag(authService.getUsername()));
+    }
+
+    public List<ExpensesByTagsDTO> getExpensesByTags() {
+        return mapper.transformExpensesTagsToDTO(repository.getExpensesByTags(authService.getUsername()));
     }
 }

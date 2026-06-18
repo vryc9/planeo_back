@@ -1,18 +1,20 @@
 package com.example.planeo_back.infrastructure.adapter.repository.expense;
 
+import com.example.planeo_back.domain.models.ExpenseAmountByTagDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
+import com.example.planeo_back.domain.models.expense.ExpensesByTagDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.models.ExpenseByTag;
 import com.example.planeo_back.domain.models.ExpensePerMount;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
-import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class ExpenseRepositoryAdapter implements ExpenseRepository {
@@ -66,7 +68,23 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     }
 
     @Override
-    public List<ExpenseByTag> getExpenseByTag(String username) {
+    public List<ExpenseAmountByTagDomain> getExpenseAmountByTag(String username) {
         return repository.findTotalAmountByTagForCurrentMonth(username);
+    }
+
+    @Override
+    public List<ExpensesByTagDomain> getExpensesByTags(String username) {
+        return repository.findExpenseByUsernameForCurrentMonthOrderByDateDesc(username).stream()
+                .map(mapper::fromEntityToDomain)
+                .collect(Collectors.groupingBy(ExpenseDomain::tag, Collectors.toUnmodifiableList()))
+                .entrySet().stream()
+                .map(entry -> new ExpensesByTagDomain(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(ExpensesByTagDomain::tag))
+                .toList();
+    }
+
+    @Override
+    public List<ExpenseDomain> findExpenseForCurrentMonth(String username) {
+        return repository.findExpenseByUsernameForCurrentMonthOrderByDateDesc(username).stream().map(mapper::fromEntityToDomain).toList();
     }
 }

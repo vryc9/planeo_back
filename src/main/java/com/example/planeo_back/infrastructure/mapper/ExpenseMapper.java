@@ -1,12 +1,14 @@
 package com.example.planeo_back.infrastructure.mapper;
 
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
+import com.example.planeo_back.domain.models.expense.ExpensesByTagDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
-import com.example.planeo_back.domain.models.ExpenseByTag;
+import com.example.planeo_back.domain.models.ExpenseAmountByTagDomain;
 import com.example.planeo_back.domain.models.ExpensePerMount;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseByTagDTO;
+import com.example.planeo_back.web.DTO.expense.ExpenseAmountByTagDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
+import com.example.planeo_back.web.DTO.expense.ExpensesByTagsDTO;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -19,7 +21,8 @@ public interface ExpenseMapper {
     ExpenseDTO toDTO(Expense expense);
     List<ExpenseDTO> toDTO(List<Expense> expenses);
     List<ExpensePerMonthDTO> transformExpensePerMonthDTO(List<ExpensePerMount> expensePerMounts);
-    List<ExpenseByTagDTO> transformExpenseByTags(List<ExpenseByTag> expenseByTags);
+    List<ExpenseAmountByTagDTO> transformExpenseAmountByTags(List<ExpenseAmountByTagDomain> expenseAmountByTagDomains);
+    List<ExpensesByTagsDTO> transformExpensesTagsToDTO(List<ExpensesByTagDomain> expensesByTags);
     Expense toEntity(ExpenseDomain expenseDomain);
     List<Expense> toEntity(List<ExpenseDTO> expenseDTOs);
 }

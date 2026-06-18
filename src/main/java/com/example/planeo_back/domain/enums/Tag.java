@@ -13,7 +13,10 @@ public enum Tag {
     ABONNEMENT("Abonnement"),
     TRANSPORT("Transport"),
     INVESTISSEMENT("Investissement"),
-    CINEMA("Cinéma");
+    CINEMA("Cinéma"),
+    PHARMARCIE("Pharmacie"),
+    VETEMENT("Vetement"),
+    COIFFEUR("Coiffeur");
 
     private final String label;
 
