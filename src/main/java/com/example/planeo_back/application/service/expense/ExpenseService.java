@@ -1,9 +1,11 @@
 package com.example.planeo_back.application.service.expense;
 import com.example.planeo_back.application.service.security.AuthService;
+import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
+import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.domain.service.CalculateFutureBalance;
@@ -17,6 +19,7 @@ import jakarta.transaction.Transactional;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -50,16 +53,28 @@ public class ExpenseService{
 
     @Transactional
     public ExpenseDTO save(ExpenseCreateRequestDTO dto) throws SchedulerException {
-        ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), dto.tag(),dto.status(), dto.recurring(), dto.date());
+        ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), dto.tag(),
+                isBeforeOfToday(dto.date()) ? ExpenseStatus.PROCESSED : ExpenseStatus.PENDING
+                , dto.recurring(), dto.date());
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
-        BalanceDomain balanceWithFutureBalance = new BalanceDomain(
-                balance.id(),
-                balance.username(),
-                balance.currentBalance(),
-                CalculateFutureBalance.calculFutureBalance(repository.findExpenseByUsername(authService.getUsername()), balance, dto.amount()),
-                balance.pendingExpense());
 
-        balanceRepository.save(balanceWithFutureBalance);
+
+        BalanceDomain balanceUpdated = !isBeforeOfToday(expenseDomain.date())
+                ? new BalanceDomain(
+                    balance.id(),
+                    balance.username(),
+                    balance.currentBalance(),
+                    CalculateFutureBalance.calculFutureBalance(repository.findExpenseByUsername(authService.getUsername()), balance, dto.amount()),
+                    balance.pendingExpense())
+                : new BalanceDomain(
+                    balance.id(),
+                    balance.username(),
+                    balance.currentBalance(),
+                    balance.futureBalance(),
+                    balance.pendingExpense())
+                    .withCurrentBalanceUpadated(expenseDomain.amount());
+
+        balanceRepository.save(balanceUpdated);
         ExpenseDomain savedExpense = repository.save(expenseDomain);
         scheduler.scheduleJob(savedExpense, authService.getUsername());
         return mapper.fromDomainToDTO(savedExpense);
@@ -97,5 +112,9 @@ public class ExpenseService{
 
     public List<ExpensesByTagsDTO> getExpensesByTags() {
         return mapper.transformExpensesTagsToDTO(repository.getExpensesByTags(authService.getUsername()));
+    }
+
+    private boolean isBeforeOfToday (LocalDate date) {
+        return !date.isAfter(LocalDate.now());
     }
 }

@@ -4,9 +4,6 @@ import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
-import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
-import com.example.planeo_back.infrastructure.sse.EventName;
-import com.example.planeo_back.infrastructure.sse.SseService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +16,12 @@ import java.math.BigDecimal;
 public class GetNextExpenseService {
     private final ExpenseRepository expenseRepository;
     private final BalanceRepository balanceRepository;
-    private final SseService sseService;
     private static final Logger log = LoggerFactory.getLogger(GetNextExpenseService.class);
 
 
-    public GetNextExpenseService(ExpenseRepository expenseRepository, BalanceRepository balanceRepository, SseService sseService) {
+    public GetNextExpenseService(ExpenseRepository expenseRepository, BalanceRepository balanceRepository) {
         this.expenseRepository = expenseRepository;
         this.balanceRepository = balanceRepository;
-        this.sseService = sseService;
     }
 
     public void processExpense(Long expenseId, String username) {
@@ -40,10 +35,6 @@ public class GetNextExpenseService {
 
         balanceRepository.decreaseCurrentBalance(username, expense.amount());
         updateFutureBalance(username);
-
-        sseService.send(username, EventName.UPDATED_EXPENSE,
-                "Modification de l'expense: " + expense.label());
-        log.info("Sortie de la méthode proccessExpense");
     }
 
     private void updateFutureBalance(String username) {
