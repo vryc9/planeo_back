@@ -98,4 +98,9 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
                 .map(mapper::fromEntityToDomain)
                 .toList();
     }
+
+    @Override
+    public List<ExpenseDomain> findExpenseByUsernameAndStatus(String username, ExpenseStatus status) {
+        return repository.findExpenseByUsernameAndStatus(username, status).stream().map(mapper::fromEntityToDomain).toList();
+    }
 }

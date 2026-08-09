@@ -53,12 +53,10 @@ public class ExpenseService{
         if (monthsCount < 1) {
             throw new IllegalArgumentException("monthsCount must be >= 1, got: " + monthsCount);
         }
-
-        List<ExpenseDTO> aa = repository.findExpenseForLastMonths(authService.getUsername(), monthsCount)
+        return repository.findExpenseForLastMonths(authService.getUsername(), monthsCount)
                 .stream()
                 .map(mapper::fromDomainToDTO)
                 .toList();
-        return aa;
     }
 
 
@@ -70,18 +68,21 @@ public class ExpenseService{
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
         BalanceDomain balanceUpdated = !isBeforeOfToday(expenseDomain.date())
                 ? new BalanceDomain(
-                    balance.id(),
-                    balance.username(),
-                    balance.currentBalance(),
-                    CalculateFutureBalance.calculFutureBalance(repository.findExpenseByUsername(authService.getUsername()), balance, dto.amount()),
-                    balance.pendingExpense())
+                balance.id(),
+                balance.username(),
+                balance.currentBalance(),
+                CalculateFutureBalance.calculFutureBalance(
+                        repository.findExpenseByUsernameAndStatus(authService.getUsername(), ExpenseStatus.PENDING),
+                        balance,
+                        dto.amount()),
+                balance.pendingExpense())
                 : new BalanceDomain(
-                    balance.id(),
-                    balance.username(),
-                    balance.currentBalance(),
-                    balance.futureBalance(),
-                    balance.pendingExpense())
-                    .withCurrentBalanceUpadated(expenseDomain.amount());
+                balance.id(),
+                balance.username(),
+                balance.currentBalance(),
+                balance.futureBalance(),
+                balance.pendingExpense())
+                .withCurrentBalanceUpadated(expenseDomain.amount());
 
         balanceRepository.save(balanceUpdated);
         ExpenseDomain savedExpense = repository.save(expenseDomain);

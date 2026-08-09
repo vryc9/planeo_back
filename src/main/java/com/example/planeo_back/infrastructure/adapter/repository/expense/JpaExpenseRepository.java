@@ -58,4 +58,5 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
             @Param("username") String username,
             @Param("startDate") LocalDate startDate
     );
+    List<Expense> findExpenseByUsernameAndStatus(String username, ExpenseStatus status);
 }
