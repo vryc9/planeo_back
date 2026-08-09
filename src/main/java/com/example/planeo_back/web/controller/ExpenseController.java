@@ -37,9 +37,14 @@ public class ExpenseController {
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @GetMapping("/month/number")
+    public ResponseEntity<List<ExpenseDTO>> getExpensesForLastMonths(@RequestParam int monthCount) {
+        return ResponseEntity.ok(service.getExpensesForLastMonths(monthCount));
+    }
+
     @GetMapping
-    public ResponseEntity<List<ExpenseDTO>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<ExpenseDTO>> getExpensesForCurrentMonth() {
+        return ResponseEntity.ok(service.getExpensesForCurrentMonth());
     }
 
     @GetMapping("/tags")

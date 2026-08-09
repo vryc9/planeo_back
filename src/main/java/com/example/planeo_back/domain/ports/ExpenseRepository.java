@@ -18,4 +18,5 @@ public interface ExpenseRepository extends IGenericCrudRepository<ExpenseDomain>
     List<ExpenseAmountByTagDomain> getExpenseAmountByTag(String username);
     List<ExpensesByTagDomain> getExpensesByTags(String username);
     List<ExpenseDomain> findExpenseForCurrentMonth(String username);
+    List<ExpenseDomain> findExpenseForLastMonths(String username, int monthCount);
 }

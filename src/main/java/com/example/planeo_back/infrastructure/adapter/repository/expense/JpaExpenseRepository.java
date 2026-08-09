@@ -1,6 +1,5 @@
 package com.example.planeo_back.infrastructure.adapter.repository.expense;
 
-import com.example.planeo_back.domain.models.expense.ExpensesByTagDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.ExpenseAmountByTagDomain;
@@ -11,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -21,14 +21,15 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
     BigDecimal sumByUserIdAndStatus(@Param("username") String username, @Param("status") ExpenseStatus status);
 
     @Query("""
-                SELECT new com.example.planeo_back.domain.models.ExpensePerMount(
-                    MONTH(e.date), SUM(e.amount)
-                )
-                FROM Expense e
-                WHERE e.username = :username
-                GROUP BY MONTH(e.date)
-                ORDER BY MONTH(e.date)
-            """)
+            SELECT new com.example.planeo_back.domain.models.ExpensePerMount(
+                MONTH(e.date), SUM(e.amount)
+            )
+            FROM Expense e
+            WHERE e.username = :username
+              AND YEAR(e.date) = YEAR(CURRENT_DATE)
+            GROUP BY MONTH(e.date)
+            ORDER BY MONTH(e.date)
+        """)
     List<ExpensePerMount> getExpensePerMountByUser(String username);
 
     @Query("""
@@ -47,12 +48,14 @@ public interface JpaExpenseRepository extends JpaRepository<Expense, Long> {
 
 
     @Query("""
-            SELECT e
-            FROM Expense e
-            WHERE e.username = :username
-              AND YEAR(e.date) = YEAR(CURRENT_DATE)
-              AND MONTH(e.date) = MONTH(CURRENT_DATE)
-            ORDER BY e.date DESC
-        """)
-    List<Expense> findExpenseByUsernameForCurrentMonthOrderByDateDesc(@Param("username") String username);
+        SELECT e
+        FROM Expense e
+        WHERE e.username = :username
+          AND e.date >= :startDate
+        ORDER BY e.date DESC
+    """)
+    List<Expense> findExpenseByUsernameSince(
+            @Param("username") String username,
+            @Param("startDate") LocalDate startDate
+    );
 }

@@ -11,6 +11,8 @@ import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -74,8 +76,7 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
 
     @Override
     public List<ExpensesByTagDomain> getExpensesByTags(String username) {
-        return repository.findExpenseByUsernameForCurrentMonthOrderByDateDesc(username).stream()
-                .map(mapper::fromEntityToDomain)
+        return findExpenseForCurrentMonth(username).stream()
                 .collect(Collectors.groupingBy(ExpenseDomain::tag, Collectors.toUnmodifiableList()))
                 .entrySet().stream()
                 .map(entry -> new ExpensesByTagDomain(entry.getKey(), entry.getValue()))
@@ -85,6 +86,16 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
 
     @Override
     public List<ExpenseDomain> findExpenseForCurrentMonth(String username) {
-        return repository.findExpenseByUsernameForCurrentMonthOrderByDateDesc(username).stream().map(mapper::fromEntityToDomain).toList();
+        return findExpenseForLastMonths(username, 1);
+    }
+
+    @Override
+    public List<ExpenseDomain> findExpenseForLastMonths(String username, int monthsCount) {
+        LocalDate startDate = YearMonth.now()
+                .minusMonths(monthsCount - 1)
+                .atDay(1);
+        return repository.findExpenseByUsernameSince(username, startDate).stream()
+                .map(mapper::fromEntityToDomain)
+                .toList();
     }
 }

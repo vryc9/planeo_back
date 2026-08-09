@@ -5,6 +5,7 @@ import com.example.planeo_back.domain.enums.Tag;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -24,7 +25,9 @@ public class Expense {
     @Enumerated(EnumType.ORDINAL)
     private ExpenseStatus status;
 
-    private Date date;
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
     private String label;
 
     @Column(nullable = false)
@@ -36,7 +39,7 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(String label, Date date, Tag tag, BigDecimal amount, String username, boolean recurring) {
+    public Expense(String label, LocalDate date, Tag tag, BigDecimal amount, String username, boolean recurring) {
         this.label = label;
         this.date = date;
         this.tag = tag;
@@ -70,11 +73,11 @@ public class Expense {
         this.tag = tag;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

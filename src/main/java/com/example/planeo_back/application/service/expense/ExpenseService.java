@@ -5,11 +5,9 @@ import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
-import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.domain.service.CalculateFutureBalance;
-import com.example.planeo_back.infrastructure.mapper.BalanceMapper;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseAmountByTagDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
@@ -32,7 +30,7 @@ public class ExpenseService{
     private final AuthService authService;
     private final SchedulerService scheduler;
 
-    public ExpenseService(ExpenseRepository repository, ExpenseMapper mapper, BalanceRepository balanceRepository, BalanceMapper balanceMapper, AuthService authService, SchedulerService scheduler) {
+    public ExpenseService(ExpenseRepository repository, ExpenseMapper mapper, BalanceRepository balanceRepository, AuthService authService, SchedulerService scheduler) {
         this.repository = repository;
         this.mapper = mapper;
         this.balanceRepository = balanceRepository;
@@ -44,12 +42,25 @@ public class ExpenseService{
         return repository.findById(id).map(mapper::fromDomainToDTO).orElseThrow(NoSuchElementException::new);
     }
 
-    public List<ExpenseDTO> findAll() {
+    public List<ExpenseDTO> getExpensesForCurrentMonth() {
         return repository.findExpenseForCurrentMonth(authService.getUsername())
                 .stream()
                 .map(mapper::fromDomainToDTO)
                 .toList();
     }
+
+    public List<ExpenseDTO> getExpensesForLastMonths(int monthsCount) {
+        if (monthsCount < 1) {
+            throw new IllegalArgumentException("monthsCount must be >= 1, got: " + monthsCount);
+        }
+
+        List<ExpenseDTO> aa = repository.findExpenseForLastMonths(authService.getUsername(), monthsCount)
+                .stream()
+                .map(mapper::fromDomainToDTO)
+                .toList();
+        return aa;
+    }
+
 
     @Transactional
     public ExpenseDTO save(ExpenseCreateRequestDTO dto) throws SchedulerException {
@@ -57,8 +68,6 @@ public class ExpenseService{
                 isBeforeOfToday(dto.date()) ? ExpenseStatus.PROCESSED : ExpenseStatus.PENDING
                 , dto.recurring(), dto.date());
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
-
-
         BalanceDomain balanceUpdated = !isBeforeOfToday(expenseDomain.date())
                 ? new BalanceDomain(
                     balance.id(),
