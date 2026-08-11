@@ -2,17 +2,19 @@ package com.example.planeo_back.application.service.expense;
 import com.example.planeo_back.application.service.security.AuthService;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
+import com.example.planeo_back.domain.models.category.CategoryDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
+import com.example.planeo_back.domain.models.expense.ExpensesByCategoryDomain;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.domain.service.CalculateFutureBalance;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseAmountByTagDTO;
+import com.example.planeo_back.web.DTO.expense.ExpenseAmountByCategoryDTO;
 import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
-import com.example.planeo_back.web.DTO.expense.ExpensesByTagsDTO;
+import com.example.planeo_back.web.DTO.expense.ExpensesByCategoryDTO;
 import jakarta.transaction.Transactional;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
@@ -62,7 +64,7 @@ public class ExpenseService{
 
     @Transactional
     public ExpenseDTO save(ExpenseCreateRequestDTO dto) throws SchedulerException {
-        ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), dto.tag(),
+        ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), CategoryDomain.buildWithId(dto.category().id(), dto.category().name(), dto.category().icon(), authService.getUsername()),
                 isBeforeOfToday(dto.date()) ? ExpenseStatus.PROCESSED : ExpenseStatus.PENDING
                 , dto.recurring(), dto.date());
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
@@ -116,12 +118,12 @@ public class ExpenseService{
         return mapper.transformExpensePerMonthDTO(repository.getExpensePerMonthByUser(authService.getUsername()));
     }
 
-    public List<ExpenseAmountByTagDTO> getExpenseAmountByTags() {
-        return mapper.transformExpenseAmountByTags(repository.getExpenseAmountByTag(authService.getUsername()));
+    public List<ExpenseAmountByCategoryDTO> getExpenseAmountByCategory() {
+        return mapper.transformExpenseAmountByCategories(repository.getExpenseAmountByCategory(authService.getUsername()));
     }
 
-    public List<ExpensesByTagsDTO> getExpensesByTags() {
-        return mapper.transformExpensesTagsToDTO(repository.getExpensesByTags(authService.getUsername()));
+    public List<ExpensesByCategoryDTO> getExpensesByCategory() {
+        return mapper.transformExpensesCategoryToDTO(repository.getExpensesByCategory(authService.getUsername()));
     }
 
     private boolean isBeforeOfToday (LocalDate date) {

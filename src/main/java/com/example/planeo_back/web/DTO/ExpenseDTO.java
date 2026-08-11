@@ -1,16 +1,15 @@
 package com.example.planeo_back.web.DTO;
 
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.enums.Tag;
+import com.example.planeo_back.web.DTO.category.CategoryDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 public record ExpenseDTO (
     Long id,
     BigDecimal amount,
-    Tag tag,
+    CategoryDTO category,
     ExpenseStatus status,
     LocalDate date,
     String label,

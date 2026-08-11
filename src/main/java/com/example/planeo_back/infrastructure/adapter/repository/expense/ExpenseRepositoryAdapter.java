@@ -1,12 +1,13 @@
 package com.example.planeo_back.infrastructure.adapter.repository.expense;
 
-import com.example.planeo_back.domain.models.ExpenseAmountByTagDomain;
+import com.example.planeo_back.domain.models.ExpenseAmountByCategoryDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
-import com.example.planeo_back.domain.models.expense.ExpensesByTagDomain;
+import com.example.planeo_back.domain.models.expense.ExpensesByCategoryDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.models.ExpensePerMount;
+import com.example.planeo_back.domain.models.ExpensePerMonthDomain;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
+import com.example.planeo_back.infrastructure.mapper.CategoryMapper;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import org.springframework.stereotype.Repository;
 
@@ -22,10 +23,12 @@ import java.util.stream.Collectors;
 public class ExpenseRepositoryAdapter implements ExpenseRepository {
     private final JpaExpenseRepository repository;
     private final ExpenseMapper mapper;
+    private final CategoryMapper categoryMapper;
 
-    public ExpenseRepositoryAdapter(JpaExpenseRepository repository, ExpenseMapper mapper) {
+    public ExpenseRepositoryAdapter(JpaExpenseRepository repository, ExpenseMapper mapper, CategoryMapper categoryMapper) {
         this.repository = repository;
         this.mapper = mapper;
+        this.categoryMapper = categoryMapper;
     }
 
     @Override
@@ -41,6 +44,7 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     @Override
     public ExpenseDomain save(ExpenseDomain expense) {
         Expense entity = mapper.toEntity(expense);
+        entity.setCategory(categoryMapper.toEntity(expense.category()));
         Expense saved = repository.save(entity);
         return mapper.fromEntityToDomain(saved);
     }
@@ -65,22 +69,24 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     }
 
     @Override
-    public List<ExpensePerMount> getExpensePerMonthByUser(String username) {
-        return repository.getExpensePerMountByUser(username);
+    public List<ExpensePerMonthDomain> getExpensePerMonthByUser(String username) {
+        return repository.getExpensePerMonthByUser(username).stream().map(e -> ExpensePerMonthDomain.build(e.month(), e.total())).toList();
     }
 
     @Override
-    public List<ExpenseAmountByTagDomain> getExpenseAmountByTag(String username) {
-        return repository.findTotalAmountByTagForCurrentMonth(username);
+    public List<ExpenseAmountByCategoryDomain> getExpenseAmountByCategory(String username) {
+        return repository.findTotalAmountByCategoryForCurrentMonth(username).
+                stream().
+                map(c -> ExpenseAmountByCategoryDomain.build(c.categoryId(),c.categoryName(), c.categoryIcon(), username, c.totalAmount())).toList();
     }
 
     @Override
-    public List<ExpensesByTagDomain> getExpensesByTags(String username) {
+    public List<ExpensesByCategoryDomain> getExpensesByCategory(String username) {
         return findExpenseForCurrentMonth(username).stream()
-                .collect(Collectors.groupingBy(ExpenseDomain::tag, Collectors.toUnmodifiableList()))
+                .collect(Collectors.groupingBy(ExpenseDomain::category, Collectors.toUnmodifiableList()))
                 .entrySet().stream()
-                .map(entry -> new ExpensesByTagDomain(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparing(ExpensesByTagDomain::tag))
+                .map(entry -> new ExpensesByCategoryDomain(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(dto -> dto.category().name()))
                 .toList();
     }
 

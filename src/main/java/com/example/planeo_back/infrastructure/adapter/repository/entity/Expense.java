@@ -1,12 +1,10 @@
 package com.example.planeo_back.infrastructure.adapter.repository.entity;
 
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.enums.Tag;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "expense")
@@ -19,8 +17,9 @@ public class Expense {
     @Column(precision = 10, scale = 2)
     private BigDecimal amount;
 
-    @Enumerated(EnumType.ORDINAL)
-    private Tag tag;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Enumerated(EnumType.ORDINAL)
     private ExpenseStatus status;
@@ -39,10 +38,10 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(String label, LocalDate date, Tag tag, BigDecimal amount, String username, boolean recurring) {
+    public Expense(String label, LocalDate date, Category category, BigDecimal amount, String username, boolean recurring) {
         this.label = label;
         this.date = date;
-        this.tag = tag;
+        this.category = category;
         this.amount = amount;
         this.status = ExpenseStatus.PENDING;
         this.username = username;
@@ -65,12 +64,12 @@ public class Expense {
         this.amount = amount;
     }
 
-    public Tag getTag() {
-        return tag;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setTag(Tag tag) {
-        this.tag = tag;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public LocalDate getDate() {

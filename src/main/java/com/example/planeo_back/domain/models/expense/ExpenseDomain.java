@@ -1,7 +1,7 @@
 package com.example.planeo_back.domain.models.expense;
 
 import com.example.planeo_back.domain.enums.ExpenseStatus;
-import com.example.planeo_back.domain.enums.Tag;
+import com.example.planeo_back.domain.models.category.CategoryDomain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,13 +11,13 @@ public record ExpenseDomain(
         String username,
         BigDecimal amount,
         String label,
-        Tag tag,
+        CategoryDomain category,
         ExpenseStatus status,
         Boolean recurring,
         LocalDate date
 ) {
     public ExpenseDomain markAsProcessed() {
-        return new ExpenseDomain(id, username, amount, label, tag,  ExpenseStatus.PROCESSED, recurring, date);
+        return new ExpenseDomain(id, username, amount, label, category,  ExpenseStatus.PROCESSED, recurring, date);
     }
 
     public boolean isProcessed() {
