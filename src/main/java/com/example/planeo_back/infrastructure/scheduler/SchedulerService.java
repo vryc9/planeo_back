@@ -16,10 +16,12 @@ import java.util.Date;
 @Service
 public class SchedulerService {
 
+    private static final String JOB_GROUP = "expense-jobs";
+    private static final String TRIGGER_GROUP = "expense-triggers";
+
     private final Scheduler scheduler;
     private final QuartzJobContextFactory quartzJobContextFactory;
     private static final Logger log = LoggerFactory.getLogger(SchedulerService.class);
-
 
     public SchedulerService(Scheduler scheduler, QuartzJobContextFactory quartzJobContextFactory) {
         this.scheduler = scheduler;
@@ -27,26 +29,47 @@ public class SchedulerService {
     }
 
     public void scheduleJob(ExpenseDomain expense, String username) throws SchedulerException {
-        log.info("Entrée dans la méthode du scheduler");
-        JobDataMap dataMap = quartzJobContextFactory.createJobDataMapWithUserContextAndExpenseId(
-                expense.id(), username);
+        JobKey jobKey = jobKey(expense.id());
+        TriggerKey triggerKey = triggerKey(expense.id());
 
+        Trigger newTrigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerKey)
+                .forJob(jobKey)
+                .startAt(Date.from(resolveScheduledTime(expense.date())))
+                .build();
+
+        if (scheduler.checkExists(jobKey)) {
+            scheduler.rescheduleJob(triggerKey, newTrigger);
+            log.info("Replanification de la dépense {}", expense.id());
+            return;
+        }
+
+        JobDataMap dataMap = quartzJobContextFactory
+                .createJobDataMapWithUserContextAndExpenseId(expense.id(), username);
         JobDetail jobDetail = JobBuilder.newJob(DeductExpenseAmountJobs.class)
-                .withIdentity("expenseJob_" + expense.id(), "expense-jobs")
+                .withIdentity(jobKey)
                 .usingJobData(dataMap)
                 .build();
 
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .forJob(jobDetail)
-                .withIdentity("expenseTrigger_" + expense.id(), "expense-triggers")
-                .startAt(Date.from(resolveScheduledTime(expense.date())))
-                .build();
-        scheduler.scheduleJob(jobDetail, trigger);
+        scheduler.scheduleJob(jobDetail, newTrigger);
+        log.info("Nouvelle planification de la dépense {}", expense.id());
+    }
+
+    public void cancelJob(Long expenseId) throws SchedulerException {
+        scheduler.deleteJob(jobKey(expenseId));
+    }
+
+    private JobKey jobKey(Long expenseId) {
+        return JobKey.jobKey("expenseJob_" + expenseId, JOB_GROUP);
+    }
+
+    private TriggerKey triggerKey(Long expenseId) {
+        return TriggerKey.triggerKey("expenseTrigger_" + expenseId, TRIGGER_GROUP);
     }
 
     private Instant resolveScheduledTime(LocalDate expenseDate) {
-        var zone = ZoneId.of("Europe/Paris");
-        var today = LocalDate.now(zone);
+        ZoneId zone = ZoneId.of("Europe/Paris");
+        LocalDate today = LocalDate.now(zone);
 
         if (!expenseDate.isAfter(today)) {
             return Instant.now().plus(3, ChronoUnit.SECONDS);

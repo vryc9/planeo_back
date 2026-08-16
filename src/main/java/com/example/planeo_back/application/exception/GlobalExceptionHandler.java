@@ -1,4 +1,4 @@
-package com.example.planeo_back.web.exception;
+package com.example.planeo_back.application.exception;
 
 import com.example.planeo_back.application.exception.category.DomainException;
 import org.slf4j.Logger;
@@ -60,6 +60,18 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur inattendue est survenue");
         problem.setTitle("Erreur interne");
         problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(ExpenseExceptionHandler.class)
+    public ProblemDetail handleExpenseScheduling(ExpenseExceptionHandler ex) {
+        log.error("Échec de planification Quartz", ex);
+
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "La planification de la dépense a échoué, veuillez réessayer"
+        );
+        problem.setTitle("Erreur de planification");
         return problem;
     }
 }
