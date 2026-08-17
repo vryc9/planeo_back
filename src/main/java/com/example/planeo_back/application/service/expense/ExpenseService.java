@@ -98,11 +98,21 @@ public class ExpenseService{
         String username = authService.getUsername();
         ExpenseDomain expense = mapper.fromDtoToDomain(expenseDTO);
         BalanceDomain balance = balanceRepository.findBalanceByUsername(username);
-        BalanceDomain updated = new BalanceDomain(
+
+        BigDecimal add = balance.futureBalance().add(expense.amount());
+        BalanceDomain updated =  expense.isProcessed() ?
+                new BalanceDomain(
+                        balance.id(),
+                        balance.username(),
+                        balance.currentBalance().add(expense.amount()),
+                        add,
+                        balance.pendingExpense()
+                ) :
+                new BalanceDomain(
                 balance.id(),
                 balance.username(),
                 balance.currentBalance(),
-                balance.futureBalance().add(expense.amount()),
+                        add,
                 balance.pendingExpense()
         );
         balanceRepository.save(updated);
