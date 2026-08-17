@@ -6,6 +6,9 @@ on:
 
 jobs:
   call-reusable:
+    permissions:
+      contents: read
+      packages: write
     uses: vryc9/planeo_infra/.github/workflows/build-and-deploy.yml@main
     with:
       service_name: planeo-back
