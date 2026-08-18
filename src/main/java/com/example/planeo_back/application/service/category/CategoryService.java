@@ -1,5 +1,7 @@
 package com.example.planeo_back.application.service.category;
 
+import com.example.planeo_back.application.exception.category.CategoryMessage;
+import com.example.planeo_back.application.exception.category.InvalidCategoryException;
 import com.example.planeo_back.application.service.security.AuthService;
 import com.example.planeo_back.domain.models.category.CategoryDomain;
 import com.example.planeo_back.domain.ports.CategoryRepository;
@@ -28,5 +30,12 @@ public class CategoryService {
 
     public List<CategoryDTO> getCategoriesByUsers() {
         return repository.findVisibleForUser(authService.getUsername()).stream().map(mapper::toDTO).toList();
+    }
+
+    public void delete(CategoryDTO categoryDTO) {
+        if(categoryDTO.id() == null) {
+            throw new InvalidCategoryException(CategoryMessage.EMPTY_ID);
+        }
+        repository.delete(CategoryDomain.buildWithId(categoryDTO.id(), categoryDTO.name(), categoryDTO.icon(), authService.getUsername()));
     }
 }

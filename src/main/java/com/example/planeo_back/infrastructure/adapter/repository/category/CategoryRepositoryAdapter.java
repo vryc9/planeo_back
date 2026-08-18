@@ -1,10 +1,16 @@
 package com.example.planeo_back.infrastructure.adapter.repository.category;
 
+import com.example.planeo_back.application.exception.category.CategoryMessage;
+import com.example.planeo_back.application.exception.category.InvalidCategoryException;
 import com.example.planeo_back.domain.models.category.CategoryDomain;
 import com.example.planeo_back.domain.ports.CategoryRepository;
 import com.example.planeo_back.infrastructure.mapper.CategoryMapper;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +46,11 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
 
     @Override
     public void delete(CategoryDomain categoryDomain) {
-        repository.deleteById(categoryDomain.id());
+        try {
+            repository.deleteById(categoryDomain.id());
+            repository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new InvalidCategoryException(CategoryMessage.CATEGORY_IS_USED);
+        }
     }
 }

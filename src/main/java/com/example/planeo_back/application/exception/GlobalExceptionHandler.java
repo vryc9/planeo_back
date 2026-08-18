@@ -1,6 +1,7 @@
 package com.example.planeo_back.application.exception;
 
 import com.example.planeo_back.application.exception.category.DomainException;
+import com.example.planeo_back.application.exception.scheduler.ExpenseSchedulerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -63,8 +64,8 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(ExpenseExceptionHandler.class)
-    public ProblemDetail handleExpenseScheduling(ExpenseExceptionHandler ex) {
+    @ExceptionHandler(ExpenseSchedulerException.class)
+    public ProblemDetail handleExpenseScheduling(ExpenseSchedulerException ex) {
         log.error("Échec de planification Quartz", ex);
 
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(

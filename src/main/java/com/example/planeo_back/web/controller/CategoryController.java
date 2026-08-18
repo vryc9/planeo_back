@@ -1,5 +1,6 @@
 package com.example.planeo_back.web.controller;
 
+import com.example.planeo_back.application.exception.category.CategoryMessage;
 import com.example.planeo_back.application.service.category.CategoryService;
 import com.example.planeo_back.web.DTO.category.CategoryCreateRequestDTO;
 import com.example.planeo_back.web.DTO.category.CategoryDTO;
@@ -28,5 +29,11 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<List<CategoryDTO>> getCategoriesByUser() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getCategoriesByUsers());
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> delete(@Valid @RequestBody CategoryDTO categoryDTO) {
+        service.delete(categoryDTO);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
