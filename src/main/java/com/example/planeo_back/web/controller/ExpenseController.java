@@ -2,10 +2,7 @@ package com.example.planeo_back.web.controller;
 
 import com.example.planeo_back.application.service.expense.ExpenseService;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseAmountByCategoryDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
-import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
-import com.example.planeo_back.web.DTO.expense.ExpensesByCategoryDTO;
+import com.example.planeo_back.web.DTO.expense.*;
 import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +47,11 @@ public class ExpenseController {
     @GetMapping("/category")
     public ResponseEntity<List<ExpensesByCategoryDTO>> getExpensesByCategory() {
         return ResponseEntity.status(HttpStatus.OK).body(service.getExpensesByCategory());
+    }
+
+    @GetMapping("/category/month")
+    public ResponseEntity<List<MonthlyExpensesByCategoryDTO>> getExpensesByCategoryForLastTwoMonths() {
+        return ResponseEntity.status(HttpStatus.OK).body(service.getExpensesByCategoryForLastTwoMonths());
     }
 
     @PostMapping

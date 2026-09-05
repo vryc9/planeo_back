@@ -3,6 +3,7 @@ package com.example.planeo_back.infrastructure.adapter.repository.expense;
 import com.example.planeo_back.domain.models.ExpenseAmountByCategoryDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.models.expense.ExpensesByCategoryDomain;
+import com.example.planeo_back.domain.models.expense.MonthlyExpensesByCategoryDomain;
 import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.ExpensePerMonthDomain;
@@ -82,11 +83,16 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
 
     @Override
     public List<ExpensesByCategoryDomain> getExpensesByCategory(String username) {
-        return findExpenseForCurrentMonth(username).stream()
-                .collect(Collectors.groupingBy(ExpenseDomain::category, Collectors.toUnmodifiableList()))
+        return groupByCategory(findExpenseForCurrentMonth(username));
+    }
+
+    @Override
+    public List<MonthlyExpensesByCategoryDomain> getExpensesByCategoryForLastTwoMonths(String username) {
+        return findExpenseForLastMonths(username, 2).stream()
+                .collect(Collectors.groupingBy(e -> YearMonth.from(e.date())))
                 .entrySet().stream()
-                .map(entry -> new ExpensesByCategoryDomain(entry.getKey(), entry.getValue()))
-                .sorted(Comparator.comparing(dto -> dto.category().name()))
+                .map(entry -> new MonthlyExpensesByCategoryDomain(entry.getKey(), groupByCategory(entry.getValue())))
+                .sorted(Comparator.comparing(MonthlyExpensesByCategoryDomain::month).reversed())
                 .toList();
     }
 
@@ -108,5 +114,14 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     @Override
     public List<ExpenseDomain> findExpenseByUsernameAndStatus(String username, ExpenseStatus status) {
         return repository.findExpenseByUsernameAndStatus(username, status).stream().map(mapper::fromEntityToDomain).toList();
+    }
+
+    private List<ExpensesByCategoryDomain> groupByCategory(List<ExpenseDomain> expenses) {
+        return expenses.stream()
+                .collect(Collectors.groupingBy(ExpenseDomain::category, Collectors.toUnmodifiableList()))
+                .entrySet().stream()
+                .map(entry -> new ExpensesByCategoryDomain(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(dto -> dto.category().name()))
+                .toList();
     }
 }

@@ -5,6 +5,7 @@ import com.example.planeo_back.domain.models.expense.ExpenseDomain;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.ExpensePerMonthDomain;
 import com.example.planeo_back.domain.models.expense.ExpensesByCategoryDomain;
+import com.example.planeo_back.domain.models.expense.MonthlyExpensesByCategoryDomain;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ public interface ExpenseRepository extends IGenericCrudRepository<ExpenseDomain>
     ExpenseDomain update (ExpenseDomain expense);
     List<ExpenseAmountByCategoryDomain> getExpenseAmountByCategory(String username);
     List<ExpensesByCategoryDomain> getExpensesByCategory(String username);
+    List<MonthlyExpensesByCategoryDomain> getExpensesByCategoryForLastTwoMonths(String username);
     List<ExpenseDomain> findExpenseForCurrentMonth(String username);
     List<ExpenseDomain> findExpenseForLastMonths(String username, int monthCount);
     List<ExpenseDomain> findExpenseByUsernameAndStatus(String username, ExpenseStatus status);
