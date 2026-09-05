@@ -4,18 +4,13 @@ import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.category.CategoryDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
-import com.example.planeo_back.domain.models.expense.ExpensesByCategoryDomain;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.domain.ports.ExpenseSchedulerPort;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
-import com.example.planeo_back.infrastructure.scheduler.SchedulerService;
 import com.example.planeo_back.domain.service.CalculateFutureBalance;
 import com.example.planeo_back.web.DTO.ExpenseDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseAmountByCategoryDTO;
-import com.example.planeo_back.web.DTO.expense.ExpenseCreateRequestDTO;
-import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
-import com.example.planeo_back.web.DTO.expense.ExpensesByCategoryDTO;
+import com.example.planeo_back.web.DTO.expense.*;
 import jakarta.transaction.Transactional;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
@@ -187,6 +182,10 @@ public class ExpenseService{
 
     public List<ExpensesByCategoryDTO> getExpensesByCategory() {
         return mapper.transformExpensesCategoryToDTO(repository.getExpensesByCategory(authService.getUsername()));
+    }
+
+    public List<MonthlyExpensesByCategoryDTO> getExpensesByCategoryForLastTwoMonths() {
+        return mapper.transformMonthlyExpensesCategoryToDTO(repository.getExpensesByCategoryForLastTwoMonths(authService.getUsername()));
     }
 
     private boolean isBeforeOfToday (LocalDate date) {
