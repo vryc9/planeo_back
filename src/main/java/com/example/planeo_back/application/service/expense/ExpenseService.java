@@ -1,9 +1,11 @@
 package com.example.planeo_back.application.service.expense;
 import com.example.planeo_back.application.service.security.AuthService;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
+import com.example.planeo_back.domain.models.account.AccountDomain;
 import com.example.planeo_back.domain.models.balance.BalanceDomain;
 import com.example.planeo_back.domain.models.category.CategoryDomain;
 import com.example.planeo_back.domain.models.expense.ExpenseDomain;
+import com.example.planeo_back.domain.ports.AccountRepository;
 import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
 import com.example.planeo_back.domain.ports.ExpenseSchedulerPort;
@@ -26,13 +28,15 @@ public class ExpenseService{
     private final ExpenseRepository repository;
     private final ExpenseMapper mapper;
     private final BalanceRepository balanceRepository;
+    private final AccountRepository accountRepository;
     private final AuthService authService;
     private final ExpenseSchedulerPort scheduler;
 
-    public ExpenseService(ExpenseRepository repository, ExpenseMapper mapper, BalanceRepository balanceRepository, AuthService authService, ExpenseSchedulerPort scheduler) {
+    public ExpenseService(ExpenseRepository repository, ExpenseMapper mapper, BalanceRepository balanceRepository, AccountRepository accountRepository, AuthService authService, ExpenseSchedulerPort scheduler) {
         this.repository = repository;
         this.mapper = mapper;
         this.balanceRepository = balanceRepository;
+        this.accountRepository = accountRepository;
         this.authService = authService;
         this.scheduler = scheduler;
     }
@@ -63,7 +67,7 @@ public class ExpenseService{
     public ExpenseDTO save(ExpenseCreateRequestDTO dto) throws SchedulerException {
         ExpenseDomain expenseDomain = new ExpenseDomain(null, authService.getUsername(), dto.amount(), dto.label(), CategoryDomain.buildWithId(dto.category().id(), dto.category().name(), dto.category().icon(), authService.getUsername()),
                 isBeforeOfToday(dto.date()) ? ExpenseStatus.PROCESSED : ExpenseStatus.PENDING
-                , dto.recurring(), dto.date());
+                , dto.recurring(), dto.date(), dto.accountId());
         BalanceDomain balance = balanceRepository.findBalanceByUsername(authService.getUsername());
         BalanceDomain balanceUpdated = !isBeforeOfToday(expenseDomain.date())
                 ? new BalanceDomain(
@@ -84,11 +88,15 @@ public class ExpenseService{
                 .withCurrentBalanceUpadated(expenseDomain.amount());
 
         balanceRepository.save(balanceUpdated);
+        if (expenseDomain.isProcessed()) {
+            adjustAccountAmount(expenseDomain.accountId(), expenseDomain.amount().negate());
+        }
         ExpenseDomain savedExpense = repository.save(expenseDomain);
         scheduler.schedule(savedExpense, authService.getUsername());
         return mapper.fromDomainToDTO(savedExpense);
     }
 
+    @Transactional
     public void delete(ExpenseDTO expenseDTO) {
         String username = authService.getUsername();
         ExpenseDomain expense = mapper.fromDtoToDomain(expenseDTO);
@@ -111,6 +119,9 @@ public class ExpenseService{
                 balance.pendingExpense()
         );
         balanceRepository.save(updated);
+        if (expense.isProcessed()) {
+            adjustAccountAmount(expense.accountId(), expense.amount());
+        }
         repository.delete(expense);
     }
 
@@ -142,6 +153,7 @@ public class ExpenseService{
             domain = existing.withUpdatedDetails(dto.amount(), dto.label(), category, dto.recurring(), dto.date())
                     .reopen();
             newCurrentBalance = balance.currentBalance().add(existing.amount());
+            adjustAccountAmount(existing.accountId(), existing.amount());
         } else if (movingToFuture) {
             domain = existing.withUpdatedDetails(dto.amount(), dto.label(), category, dto.recurring(), dto.date());
             newCurrentBalance = balance.currentBalance();
@@ -149,6 +161,7 @@ public class ExpenseService{
             domain = existing.withUpdatedDetails(dto.amount(), dto.label(), category, dto.recurring(), dto.date())
                     .markAsProcessed();
             newCurrentBalance = balance.currentBalance().subtract(dto.amount());
+            adjustAccountAmount(existing.accountId(), dto.amount().negate());
         }
 
         ExpenseDomain saved = repository.update(domain);
@@ -190,5 +203,14 @@ public class ExpenseService{
 
     private boolean isBeforeOfToday (LocalDate date) {
         return !date.isAfter(LocalDate.now());
+    }
+
+    private void adjustAccountAmount(Long accountId, BigDecimal delta) {
+        if (accountId == null) {
+            return;
+        }
+        AccountDomain account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NoSuchElementException("Compte introuvable : " + accountId));
+        accountRepository.update(account.withAmount(account.amount().add(delta)));
     }
 }
