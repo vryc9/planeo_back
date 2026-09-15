@@ -6,13 +6,14 @@ public record AccountDomain(
         Long id,
         String username,
         String label,
-        BigDecimal amount
+        BigDecimal amount,
+        String logo
 ) {
-    public static AccountDomain build(String username, String label, BigDecimal amount) {
-        return new AccountDomain(null, username, label, amount);
+    public static AccountDomain build(String username, String label, BigDecimal amount, String logo) {
+        return new AccountDomain(null, username, label, amount, logo);
     }
 
     public AccountDomain withAmount(BigDecimal newAmount) {
-        return new AccountDomain(id, username, label, newAmount);
+        return new AccountDomain(id, username, label, newAmount, logo);
     }
 }
