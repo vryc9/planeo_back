@@ -20,24 +20,4 @@ public record BalanceDomain (
                 pendingExpense
         );
     }
-
-    public BalanceDomain withCurrentBalanceUpadated(BigDecimal amount) {
-        return new BalanceDomain(
-                id,
-                username,
-                currentBalance.subtract(amount),
-                futureBalance.subtract(amount),
-                pendingExpense
-        );
-    }
-
-    public BalanceDomain withDeposit(BigDecimal amount, BigDecimal updatedPendingSum) {
-        return new BalanceDomain(
-                id,
-                username,
-                currentBalance.add(amount),
-                currentBalance.add(amount).subtract(updatedPendingSum),
-                updatedPendingSum
-        );
-    }
 }

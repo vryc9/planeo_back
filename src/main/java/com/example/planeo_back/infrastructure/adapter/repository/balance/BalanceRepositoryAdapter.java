@@ -6,7 +6,6 @@ import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.infrastructure.mapper.BalanceMapper;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,22 +49,5 @@ public class BalanceRepositoryAdapter implements BalanceRepository {
     @Override
     public boolean balanceExistForUser(String username) {
         return repository.existsByUsername(username);
-    }
-
-    @Override
-    public void decreaseCurrentBalance(String username, BigDecimal amount) {
-        repository.decreaseCurrentBalance(username, amount);
-    }
-
-    @Override
-    public BalanceDomain update(BalanceDomain domain) {
-        BalanceDomain saved = mapper.fromEntityToDomain(repository.save(mapper.toEntity(domain)));
-        return new BalanceDomain(
-                saved.id(),
-                saved.username(),
-                saved.currentBalance(),
-                saved.futureBalance(),
-                domain.pendingExpense()
-        );
     }
 }

@@ -4,11 +4,11 @@ import com.example.planeo_back.application.service.balance.BalanceService;
 import com.example.planeo_back.application.service.security.AuthService;
 import com.example.planeo_back.web.DTO.BalanceResponseDTO;
 import com.example.planeo_back.web.DTO.balance.BalanceDTO;
+import com.example.planeo_back.web.DTO.balance.DepositRequestDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/balance")
@@ -44,8 +44,8 @@ public class BalanceController {
     }
 
     @PutMapping
-    public ResponseEntity<BalanceResponseDTO> update(@RequestBody BigDecimal amount) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.update(amount));
+    public ResponseEntity<BalanceResponseDTO> deposit(@Valid @RequestBody DepositRequestDTO depositRequestDTO) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.deposit(depositRequestDTO));
     }
 
     @DeleteMapping
