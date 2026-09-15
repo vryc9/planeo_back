@@ -13,6 +13,6 @@ public record ExpenseDTO (
     ExpenseStatus status,
     LocalDate date,
     String label,
-    boolean recurring,
-    Long accountId
+    boolean recurring
 ){}
+
