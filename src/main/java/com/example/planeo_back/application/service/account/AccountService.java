@@ -45,7 +45,7 @@ public class AccountService {
         }
 
         List<AccountDomain> saved = accounts.stream()
-                .map(dto -> repository.save(AccountDomain.build(username, dto.label(), dto.amount())))
+                .map(dto -> repository.save(AccountDomain.build(username, dto.label(), dto.amount(), dto.logo())))
                 .toList();
 
         return mapper.toDTO(saved);

@@ -21,13 +21,17 @@ public class Account {
     @Column(name = "montant", nullable = false, precision = 10, scale = 2)
     private BigDecimal montant;
 
+    @Column(name = "logo", columnDefinition = "MEDIUMTEXT")
+    private String logo;
+
     public Account() {
     }
 
-    public Account(String username, String label, BigDecimal montant) {
+    public Account(String username, String label, BigDecimal montant, String logo) {
         this.username = username;
         this.label = label;
         this.montant = montant;
+        this.logo = logo;
     }
 
     public Long getId() {
@@ -60,5 +64,13 @@ public class Account {
 
     public void setMontant(BigDecimal montant) {
         this.montant = montant;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 }

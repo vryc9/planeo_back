@@ -10,6 +10,9 @@ public record AccountCreateRequestDTO(
         String label,
 
         @NotNull(message = "Le montant du compte est obligatoire")
-        BigDecimal amount
+        BigDecimal amount,
+
+        @NotNull(message = "Un logo doit être pour ajouter une banque")
+        String logo
 ) {
 }
