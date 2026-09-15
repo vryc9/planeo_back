@@ -12,20 +12,24 @@ import com.example.planeo_back.web.DTO.expense.ExpensePerMonthDTO;
 import com.example.planeo_back.web.DTO.expense.ExpensesByCategoryDTO;
 import com.example.planeo_back.web.DTO.expense.MonthlyExpensesByCategoryDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ExpenseMapper {
+    @Mapping(target = "accountId", source = "account.id")
     ExpenseDomain fromEntityToDomain(Expense expense);
     ExpenseDomain fromDtoToDomain(ExpenseDTO expenseDTO);
     ExpenseDTO fromDomainToDTO(ExpenseDomain domain);
+    @Mapping(target = "accountId", source = "account.id")
     ExpenseDTO toDTO(Expense expense);
     List<ExpenseDTO> toDTO(List<Expense> expenses);
     List<ExpensePerMonthDTO> transformExpensePerMonthDTO(List<ExpensePerMonthDomain> expensePerMonthDomains);
     List<ExpenseAmountByCategoryDTO> transformExpenseAmountByCategories(List<ExpenseAmountByCategoryDomain> expenseAmountByCategoryDomains);
     List<ExpensesByCategoryDTO> transformExpensesCategoryToDTO(List<ExpensesByCategoryDomain> expensesByCategory);
     List<MonthlyExpensesByCategoryDTO> transformMonthlyExpensesCategoryToDTO(List<MonthlyExpensesByCategoryDomain> expensesByCategory);
+    @Mapping(target = "account", ignore = true)
     Expense toEntity(ExpenseDomain expenseDomain);
     List<Expense> toEntity(List<ExpenseDTO> expenseDTOs);
 }

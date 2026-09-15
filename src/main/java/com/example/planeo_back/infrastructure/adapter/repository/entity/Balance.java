@@ -16,18 +16,14 @@ public class Balance {
     @Column(precision = 10, scale = 2)
     private BigDecimal currentBalance;
 
-    @Column(nullable = true, precision = 10, scale = 2)
-    private BigDecimal futureBalance;
-
     @Column(nullable = false)
     private String username;
 
     public Balance() {
     }
 
-    public Balance(BigDecimal currentBalance, BigDecimal futureBalance, String username) {
+    public Balance(BigDecimal currentBalance, String username) {
         this.currentBalance = currentBalance;
-        this.futureBalance = futureBalance;
         this.username = username;
     }
 
@@ -45,14 +41,6 @@ public class Balance {
 
     public void setCurrentBalance(BigDecimal currentBalance) {
         this.currentBalance = currentBalance;
-    }
-
-    public BigDecimal getFutureBalance() {
-        return this.futureBalance;
-    }
-
-    public void setFutureBalance(BigDecimal futureBalance) {
-        this.futureBalance = futureBalance;
     }
 
     public String getUsername() {

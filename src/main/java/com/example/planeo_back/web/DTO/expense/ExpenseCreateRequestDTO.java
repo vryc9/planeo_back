@@ -12,5 +12,6 @@ public record ExpenseCreateRequestDTO(
         ExpenseStatus status,
         LocalDate date,
         String label,
-        boolean recurring
+        boolean recurring,
+        Long accountId
 ){}
