@@ -14,11 +14,10 @@ public record ExpenseDomain(
         CategoryDomain category,
         ExpenseStatus status,
         Boolean recurring,
-        LocalDate date,
-        Long accountId
+        LocalDate date
 ) {
     public ExpenseDomain markAsProcessed() {
-        return new ExpenseDomain(id, username, amount, label, category,  ExpenseStatus.PROCESSED, recurring, date, accountId);
+        return new ExpenseDomain(id, username, amount, label, category,  ExpenseStatus.PROCESSED, recurring, date);
     }
 
     public static ExpenseDomain build(Long id,
@@ -27,18 +26,17 @@ public record ExpenseDomain(
                                       String label,
                                       CategoryDomain category,
                                       Boolean recurring,
-                                      LocalDate date,
-                                      Long accountId) {
-        return new ExpenseDomain(id, username, amount, label, category, ExpenseStatus.PENDING, recurring, date, accountId);
+                                      LocalDate date) {
+        return new ExpenseDomain(id, username, amount, label, category, ExpenseStatus.PENDING, recurring, date);
     }
 
     public ExpenseDomain withUpdatedDetails(BigDecimal amount, String label, CategoryDomain category,
                                             Boolean recurring, LocalDate date) {
-        return new ExpenseDomain(id, username, amount, label, category, status, recurring, date, accountId);
+        return new ExpenseDomain(id, username, amount, label, category, status, recurring, date);
     }
 
     public ExpenseDomain reopen() {
-        return new ExpenseDomain(id, username, amount, label, category, ExpenseStatus.PENDING, recurring, date, accountId);
+        return new ExpenseDomain(id, username, amount, label, category, ExpenseStatus.PENDING, recurring, date);
     }
 
     public boolean isProcessed() {

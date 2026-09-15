@@ -1,6 +1,5 @@
 package com.example.planeo_back.application.exception;
 
-import com.example.planeo_back.application.exception.account.InvalidAccountException;
 import com.example.planeo_back.application.exception.category.DomainException;
 import com.example.planeo_back.application.exception.scheduler.ExpenseSchedulerException;
 import org.slf4j.Logger;
@@ -41,14 +40,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DomainException.class)
     public ProblemDetail handleDomainException(DomainException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
-        problem.setTitle("Règle métier violée");
-        problem.setProperty("timestamp", Instant.now());
-        return problem;
-    }
-
-    @ExceptionHandler(InvalidAccountException.class)
-    public ProblemDetail handleInvalidAccountException(InvalidAccountException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
         problem.setTitle("Règle métier violée");
         problem.setProperty("timestamp", Instant.now());

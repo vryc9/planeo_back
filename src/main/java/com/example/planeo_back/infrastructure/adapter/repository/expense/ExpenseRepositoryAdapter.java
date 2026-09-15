@@ -8,7 +8,6 @@ import com.example.planeo_back.infrastructure.adapter.repository.entity.Expense;
 import com.example.planeo_back.domain.enums.ExpenseStatus;
 import com.example.planeo_back.domain.models.ExpensePerMonthDomain;
 import com.example.planeo_back.domain.ports.ExpenseRepository;
-import com.example.planeo_back.infrastructure.adapter.repository.account.JpaAccountRepository;
 import com.example.planeo_back.infrastructure.mapper.CategoryMapper;
 import com.example.planeo_back.infrastructure.mapper.ExpenseMapper;
 import org.springframework.stereotype.Repository;
@@ -26,13 +25,11 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     private final JpaExpenseRepository repository;
     private final ExpenseMapper mapper;
     private final CategoryMapper categoryMapper;
-    private final JpaAccountRepository accountRepository;
 
-    public ExpenseRepositoryAdapter(JpaExpenseRepository repository, ExpenseMapper mapper, CategoryMapper categoryMapper, JpaAccountRepository accountRepository) {
+    public ExpenseRepositoryAdapter(JpaExpenseRepository repository, ExpenseMapper mapper, CategoryMapper categoryMapper) {
         this.repository = repository;
         this.mapper = mapper;
         this.categoryMapper = categoryMapper;
-        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -49,19 +46,12 @@ public class ExpenseRepositoryAdapter implements ExpenseRepository {
     public ExpenseDomain save(ExpenseDomain expense) {
         Expense entity = mapper.toEntity(expense);
         entity.setCategory(categoryMapper.toEntity(expense.category()));
-        if (expense.accountId() != null) {
-            entity.setAccount(accountRepository.getReferenceById(expense.accountId()));
-        }
         Expense saved = repository.save(entity);
         return mapper.fromEntityToDomain(saved);
     }
 
     public ExpenseDomain update(ExpenseDomain expense) {
-        Expense entity = mapper.toEntity(expense);
-        if (expense.accountId() != null) {
-            entity.setAccount(accountRepository.getReferenceById(expense.accountId()));
-        }
-        return mapper.fromEntityToDomain(repository.save(entity));
+        return mapper.fromEntityToDomain(repository.save(mapper.toEntity(expense)));
     }
 
     @Override

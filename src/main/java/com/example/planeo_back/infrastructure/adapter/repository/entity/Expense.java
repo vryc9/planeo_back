@@ -21,10 +21,6 @@ public class Expense {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "account_id", nullable = true)
-    private Account account;
-
     @Enumerated(EnumType.ORDINAL)
     private ExpenseStatus status;
 
@@ -74,14 +70,6 @@ public class Expense {
 
     public void setCategory(Category category) {
         this.category = category;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
     }
 
     public LocalDate getDate() {
