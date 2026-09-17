@@ -3,6 +3,7 @@ package com.example.planeo_back.web.controller;
 import com.example.planeo_back.application.service.account.AccountService;
 import com.example.planeo_back.web.DTO.account.AccountCreateRequestDTO;
 import com.example.planeo_back.web.DTO.account.AccountDTO;
+import com.example.planeo_back.web.DTO.account.BalanceTransfertDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,12 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<List<AccountDTO>> create(@Valid @RequestBody List<@Valid AccountCreateRequestDTO> accounts) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(accounts));
+    }
+
+    @PostMapping("/transfert")
+    public ResponseEntity<Void> transfert(@Valid @RequestBody BalanceTransfertDTO transfertDTO) {
+        service.transfert(transfertDTO);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping

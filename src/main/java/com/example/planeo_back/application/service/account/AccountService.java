@@ -10,6 +10,8 @@ import com.example.planeo_back.domain.ports.BalanceRepository;
 import com.example.planeo_back.infrastructure.mapper.AccountMapper;
 import com.example.planeo_back.web.DTO.account.AccountCreateRequestDTO;
 import com.example.planeo_back.web.DTO.account.AccountDTO;
+import com.example.planeo_back.web.DTO.account.BalanceTransfertDTO;
+import com.example.planeo_back.web.DTO.balance.DepositRequestDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +51,21 @@ public class AccountService {
                 .toList();
 
         return mapper.toDTO(saved);
+    }
+
+
+    @Transactional
+    public void transfert(BalanceTransfertDTO transfert) {
+        if (transfert.accountOriginId().equals(transfert.accountTargetId())) {
+            throw new InvalidAccountException(AccountMessage.SAME_ACCOUNT_TRANSERT);
+        }
+        AccountDomain originAccount = repository.findById(transfert.accountOriginId())
+                .orElseThrow(() -> new InvalidAccountException(AccountMessage.ACCOUNT_NOT_FOUND));
+
+        AccountDomain targetAccount = repository.findById(transfert.accountTargetId())
+                .orElseThrow(() -> new InvalidAccountException(AccountMessage.ACCOUNT_NOT_FOUND));
+        repository.update(originAccount.withdraw(transfert.amount()));
+        repository.update(targetAccount.credit(transfert.amount()));
     }
 
     public List<AccountDTO> getAccounts() {
