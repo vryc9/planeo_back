@@ -36,16 +36,6 @@ public class AccountService {
     @Transactional
     public List<AccountDTO> save(List<AccountCreateRequestDTO> accounts) {
         String username = authService.getUsername();
-        BalanceDomain balance = balanceRepository.findBalanceByUsername(username);
-
-        BigDecimal sum = accounts.stream()
-                .map(AccountCreateRequestDTO::amount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        if (sum.compareTo(balance.currentBalance()) != 0) {
-            throw new InvalidAccountException(AccountMessage.AMOUNT_SUM_MISMATCH);
-        }
-
         List<AccountDomain> saved = accounts.stream()
                 .map(dto -> repository.save(AccountDomain.build(username, dto.label(), dto.amount(), dto.logo())))
                 .toList();

@@ -19,56 +19,35 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 public class BalanceService {
 
-    private final BalanceRepository repository;
-    private final BalanceMapper mapper;
     private final ExpenseRepository expenseRepository;
     private final AccountRepository accountRepository;
     private final AuthService authService;
 
-    public BalanceService(BalanceRepository balanceRepository, BalanceMapper balanceMapper, ExpenseRepository expenseRepository, AccountRepository accountRepository, AuthService authService) {
-        this.repository = balanceRepository;
-        this.mapper = balanceMapper;
+    public BalanceService(ExpenseRepository expenseRepository,
+                          AccountRepository accountRepository,
+                          AuthService authService) {
         this.expenseRepository = expenseRepository;
         this.accountRepository = accountRepository;
-        this.authService  = authService;
+        this.authService = authService;
     }
 
-    public BalanceResponseDTO findById(Long id) {
-        BalanceDomain balance = repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-        return toResponse(balance);
-    }
-
-    public List<BalanceResponseDTO> findAll() {
-        return repository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    public BalanceResponseDTO save(BalanceDTO balanceDTO) throws IllegalAccessException {
-        Guard.checkIfObjectIsNull(balanceDTO);
-        String username = authService.getUsername();
-        BalanceDomain balance = new BalanceDomain(null, username, balanceDTO.currentBalance(), BigDecimal.ZERO);
-        return toResponse(repository.save(balance));
-    }
-
-    public void delete(BalanceDTO balanceDTO) {
-        BalanceDomain balance = mapper.fromDtoToDomain(balanceDTO);
-        repository.delete(balance);
+    public BalanceResponseDTO getBalance() {
+        return getBalance(authService.getUsername());
     }
 
     public BalanceResponseDTO getBalance(String username) {
-        BalanceDomain balance = repository.findBalanceByUsername(username);
-        return toResponse(balance);
-    }
+        BigDecimal currentBalance = accountRepository.findByUsername(username).stream()
+                .map(AccountDomain::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal pendingSum = expenseRepository.sumByUserIdAndStatus(username, ExpenseStatus.PENDING);
+        BigDecimal futureBalance = currentBalance.subtract(pendingSum).setScale(2, RoundingMode.HALF_UP);
 
-    public boolean balanceExistForUser() {
-        return repository.balanceExistForUser(authService.getUsername());
+        return new BalanceResponseDTO(currentBalance, futureBalance, pendingSum);
     }
 
     @Transactional
@@ -81,22 +60,5 @@ public class BalanceService {
         }
         accountRepository.update(account.withAmount(account.amount().add(dto.amount())));
         return getBalance(username);
-    }
-
-    // Tant qu'aucun compte n'existe (onboarding en cours), on retombe sur le solde saisi via /balance.
-    private BalanceResponseDTO toResponse(BalanceDomain balance) {
-        BigDecimal pendingSum = expenseRepository.sumByUserIdAndStatus(balance.username(), ExpenseStatus.PENDING);
-        BigDecimal currentBalance = accountRepository.accountsExistForUser(balance.username())
-                ? sumAccounts(balance.username())
-                : balance.currentBalance();
-        BigDecimal futureBalance = currentBalance.subtract(pendingSum).setScale(2, RoundingMode.HALF_UP);
-
-        return new BalanceResponseDTO(balance.id(), currentBalance, futureBalance, pendingSum);
-    }
-
-    private BigDecimal sumAccounts(String username) {
-        return accountRepository.findByUsername(username).stream()
-                .map(AccountDomain::amount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

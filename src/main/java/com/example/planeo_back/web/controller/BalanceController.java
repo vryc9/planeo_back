@@ -28,29 +28,9 @@ public class BalanceController {
         return ResponseEntity.ok(service.getBalance(username));
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<BalanceResponseDTO> getBalanceById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.findById(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<BalanceResponseDTO> createBalance(@RequestBody BalanceDTO balanceDTO) throws IllegalAccessException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(balanceDTO));
-    }
-
-    @GetMapping("/exist")
-    public ResponseEntity<Boolean> balanceExistForUser() {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.balanceExistForUser());
-    }
-
     @PutMapping
     public ResponseEntity<BalanceResponseDTO> deposit(@Valid @RequestBody DepositRequestDTO depositRequestDTO) {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(service.deposit(depositRequestDTO));
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteBalance(@RequestBody BalanceDTO balanceDTO) {
-        service.delete(balanceDTO);
-        return ResponseEntity.ok().build();
-    }
 }
